@@ -1,0 +1,411 @@
+﻿@model ProductDetailsModel
+@using Nop.Core
+@using Nop.Core.Domain.Seo;
+@using Nop.Core.Domain.Catalog
+
+@inject Nop.Core.IWebHelper webHelper
+@inject CatalogSettings catalogSettings
+@inject SeoSettings seoSettings
+@inject ISettingService settingService
+@inject IStoreContext  storeContext
+@inject IViewComponentSelector viewComponentSelector
+
+@{
+    Layout = "_ColumnsOne";
+    //custom Detail Page Scripts
+    Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/bootstrap-4.4.1/js/bootstrap.js");
+
+    Html.AppendCssFileParts("~/lib/bootstrap-4.4.1/css/bootstrap.css");
+
+    //title
+    Html.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    //meta
+    Html.AddMetaDescriptionParts(Model.MetaDescription);
+    Html.AddMetaKeywordParts(Model.MetaKeywords);
+    //page class
+    Html.AppendPageCssClassParts("html-product-details-page");
+
+
+    //canonical URL
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var productUrl = Url.RouteUrl("Product", new { SeName = Model.SeName }, webHelper.CurrentRequestProtocol).ToLowerInvariant();
+        Html.AddCanonicalUrlParts(productUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
+
+    //open graph META tags
+    if (seoSettings.OpenGraphMetaTags)
+    {
+        Html.AddHeadCustomParts("<meta property=\"og:type\" content=\"product\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:title\" content=\"" + Html.Encode(Model.Name) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:description\" content=\"" + Html.Encode(Nop.Core.Html.HtmlHelper.StripTags(Model.MetaDescription)) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:image\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:image:url\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:url\" content=\"" + webHelper.GetThisPageUrl(false) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:site_name\" content=\"" + Html.Encode(Model.CurrentStoreName) + "\" />");
+    }
+
+    //Twitter META tags
+    if (seoSettings.TwitterMetaTags)
+    {
+        Html.AddHeadCustomParts("<meta property=\"twitter:card\" content=\"summary\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:site\" content=\"" + Html.Encode(Model.CurrentStoreName) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:title\" content=\"" + Html.Encode(Model.Name) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:description\" content=\"" + Html.Encode(Nop.Core.Html.HtmlHelper.StripTags(Model.MetaDescription)) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:image\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:url\" content=\"" + webHelper.GetThisPageUrl(false) + "\" />");
+    }
+    var showShareButton = catalogSettings.ShowShareButton;
+}
+<script asp-location="Footer">
+        var element = $("select")[0], worked = false;
+        if (document.createEvent) {
+            var e = document.createEvent("MouseEvents");
+            e.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            worked = element.dispatchEvent(e);
+        } else if (element.fireEvent) {
+            worked = element.fireEvent("onmousedown");
+        }
+        if (!worked) {
+            alert("It didn't work in your browser.");
+        }
+
+        $('[data-toggle="collapse"]').on('click', function () {
+            $('.collapse.show').collapse('hide')
+        })
+
+        // initialize all cols with their natural order
+        $('.col-lg-2').each(function (i, ele) {
+            let idx = $(ele).index('.col-lg-2')
+            $(this).css('order', idx)
+        })
+
+        // set the flexbox order of the details col in each row
+        var calcOrder = function (perRow) {
+            $('.collapse').each(function (i, ele) {
+                var idx = $(ele).index('.collapse')
+                var modIdx = idx % perRow
+                var posi = parseInt((perRow - modIdx) + idx)
+                //console.log("posi:" + (parseInt(posi)+1))
+
+                $(this).css('order', posi)
+            })
+        }
+
+        // determine number per row based on window width
+        var breakpoints = function (width) {
+            if (width >= 992) {
+                //md
+                calcOrder(6)
+            }
+            else if (width >= 776) {
+                //md
+                calcOrder(4)
+            }
+            else if (width >= 567) {
+                //sm
+                calcOrder(3)
+            }
+            else {
+                //xs
+                calcOrder(2)
+            }
+        }
+
+        // reset order on window resize
+        $(window).on('resize', function () {
+            var win = $(this)
+            console.log(win.width);
+            breakpoints(win.width())
+        })
+
+        // set order on window load
+        $(window).on('load', function () {
+            $(".grouped-btn").children().first().text($(".variant-overview").length)
+            var win = $(this);
+            breakpoints(win.width());
+        })
+</script>
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
+<div class="page product-details-page">
+    <div class="page-body">
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
+        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
+            <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
+                <div class="product-essential">
+                    <div class="mobile-name-holder"></div>
+                    <div class="mobile-prev-next-holder"></div>
+                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialTop, additionalData = Model })
+                    @{
+                        var cloudZoom = await Component.InvokeAsync("Widget", new { widgetZone = "sevenspikes_cloud_zoom" });
+                    }
+                    @if (!String.IsNullOrEmpty(cloudZoom.ToHtmlString()))
+                    {
+                        @cloudZoom
+                    }
+                    else
+                    {
+                        <!--product pictures-->
+                        @await Html.PartialAsync("_ProductDetailsPictures", Model)
+                    }
+                    <div class="overview">
+                        <div class="prev-next-holder">
+                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
+                        </div>
+                        <!--product breadcrumb-->
+                        @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
+                        @await Html.PartialAsync("_Discontinued", Model)
+                        <div class="product-name">
+                            <h1 itemprop="name">
+                                @Model.Name
+                            </h1>
+                            <!--manufacturers-->
+                            @await Html.PartialAsync("_ProductManufacturers", Model.ProductManufacturers)
+                        </div>
+                        <div class="reviews-and-compare">
+                            <!--product reviews-->
+                            @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
+                            <!--compare button-->
+                            @await Html.PartialAsync("_CompareProductsButton", Model)
+                        </div>
+                        <!--compare, email a friend-->
+                        @*<div class="overview-buttons">
+                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore, additionalData = Model })
+
+                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsAfter, additionalData = Model })
+                            </div>*@
+
+                        @if (showShareButton)
+                        {
+                            @await Html.PartialAsync("_ShareButton", Model)
+                        }
+                        <div class="grouped-product-box">
+                            <label>@T("SevenSpikes.Themes.Emporium.Common.GroupedText")</label>
+                            <a href="#product-list-start" class="grouped-btn"><span>0</span>@T("SevenSpikes.Themes.Emporium.Common.TypesAvailable")</a>
+                        </div>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewBottom, additionalData = Model })
+                    </div>
+                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
+                </div>
+
+                @{
+                    var productTabs = await Component.InvokeAsync("Widget", new { widgetZone = "seven_spikes_product_tabs", additionalData = Model });
+                    var storeId = storeContext.CurrentStore.Id;
+
+                    var productsTabAreEnabled = !string.IsNullOrEmpty(productTabs.ToHtmlString());
+
+                    var isDescriptionTabEnabled = settingService.GetSettingByKey("tabsettings.enableproductfulldescriptiontab", false, storeId, true);
+                    var isSpecificationsTabEnabled = settingService.GetSettingByKey("tabsettings.enableproductspecificationstab", false, storeId, true);
+
+                    var shouldShowDescription = !string.IsNullOrEmpty(Model.FullDescription) && (!productsTabAreEnabled || !isDescriptionTabEnabled);
+                    var shouldShowSpecifications = !productsTabAreEnabled || !isSpecificationsTabEnabled;
+                }
+
+
+                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsBeforeCollateral, additionalData = Model })
+
+                @if (productsTabAreEnabled)
+                {
+                    @productTabs
+                }
+
+
+                @if (shouldShowDescription)
+                {
+                    <div class="full-description" itemprop="description">
+                        @Html.Raw(Model.FullDescription)
+                    </div>
+                }
+                <div class="product-collateral">
+                    <!--associated products-->
+                    <div id="product-list-start" class="product-variant-list container-fluid py-4">
+                        <div class="product-variant-collapsible-line row no-gutters" id="row1">
+                            @foreach (var variant in Model.AssociatedProducts)
+                            {
+                                <div class="product-variant-box col-lg-2 col-md-3 col-sm-4 col-6" style="padding-right:5px">
+                                    <div class="card card-body p-0">
+                                        @if (!string.IsNullOrWhiteSpace(variant.DefaultPictureModel.ImageUrl))
+                                        {
+                                            <div class="variant-collapsible-picture">
+                                                @if (viewComponentSelector.SelectComponent("LazyLoadImage") != null)
+                                                {
+                                                    <a href="#detail-@variant.Id" data-toggle="collapse" aria-expanded="true">
+                                                        @await Component.InvokeAsync("LazyLoadImage", new (string Key, string Value)[]
+                                                        {
+                                                            ("src", variant.DefaultPictureModel.ImageUrl),
+                                                            ("alt", variant.DefaultPictureModel.AlternateText),
+                                                            ("title", variant.DefaultPictureModel.Title)
+                                                        })
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="#detail-@variant.Id" data-toggle="collapse" aria-expanded="true">
+                                                        <img alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl"
+                                                             title="@variant.DefaultPictureModel.Title" />
+                                                    </a>
+                                                }
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(variant.Name))
+                                            {
+
+                                                <label class="variant-box-name">  @variant.Name</label>
+
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <div class="variant-overview col-12 collapse fade" id="detail-@variant.Id">
+                                    <div class="py-2">
+                                        <div class="variant-overview-collapsible-picture">
+                                            <img alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl"
+                                                 title="@variant.DefaultPictureModel.Title" id="main-product-img-@variant.Id" class="variant-overview-picture" />
+                                            <!--wishlist-->
+                                            @{
+                                                var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
+                                                dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = $"addtocart_{variant.Id}";
+                                                @await Html.PartialAsync("_AddToWishlist", variant.AddToCart, dataDictAddToWishlist)
+                                            }
+                                        </div>
+
+                                        <div class="variant-collapsible-info">
+                                            @if (!string.IsNullOrWhiteSpace(variant.Name))
+                                            {
+                                                <div class="variant-collapsible-name">
+                                                    @variant.Name
+                                                    @if (!string.IsNullOrWhiteSpace(variant.ShortDescription))
+                                                    {
+                                                        <div class="variant-description">
+                                                            @Html.Raw(variant.ShortDescription)
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            <table class="product-overview-collapsible-table">
+                                                <thead>
+                                                    <tr class="product-overview-collapsible-table-row product-overview-collapsible-table-header">
+                                                        <th scope="col" style="width: 30%;" class="product-overview-collapsible-table-cell">@T("admin.custom.groupedproduct.table.size")</th>
+                                                        <th scope="col" class="product-overview-collapsible-table-cell product-overview-collapsible-table-cell-mobile">@T("admin.custom.groupedproduct.table.SKU") </th>
+                                                        <th scope="col" class="product-overview-collapsible-table-cell">@T("admin.custom.groupedproduct.table.price") </th>
+                                                        <th scope="col" style="width: 20%;" class="product-overview-collapsible-table-cell">@T("admin.custom.groupedproduct.table.stock")  </th>
+                                                        <th scope="col" style="width: 20%;" class="product-overview-collapsible-table-cell"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="product-overview-collapsible-table-row product-overview-collapsible-table-size">
+                                                        <td class="product-overview-collapsible-table-cell">
+                                                            <span class="productExtra--size">
+                                                                <!--attributes-->
+                                                                @{
+                                                                    var dataDictAttributes = new ViewDataDictionary(ViewData);
+                                                                    dataDictAttributes.TemplateInfo.HtmlFieldPrefix = $"attributes_{variant.Id}";
+                                                                    @await Html.PartialAsync("_ProductAttributes", variant.ProductAttributes, dataDictAttributes)
+                                                                }
+                                                            </span>
+                                                        </td>
+                                                        <td class="product-overview-collapsible-table-cell product-overview-collapsible-table-cell-mobile">
+                                                            <span class="productExtra--size">
+                                                                <!--SKU, MAN, GTIN, vendor-->
+                                                                @await Html.PartialAsync("_SKU_Man_GTIN_Ven", variant)
+                                                            </span>
+                                                        </td>
+                                                        <td class="product-overview-collapsible-table-cell">
+                                                            <span class="productExtra--size">
+                                                                <!--price & add to cart-->
+                                                                @{
+                                                                    var dataDictPrice = new ViewDataDictionary(ViewData);
+                                                                    dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_{variant.Id}";
+                                                                    @await Html.PartialAsync("_ProductPrice", variant.ProductPrice, dataDictPrice)
+                                                                }
+                                                            </span>
+                                                        </td>
+                                                        <td class="product-overview-collapsible-table-cell">
+                                                            <span class="productExtra--size">
+                                                                <!--availability-->
+                                                                @await Html.PartialAsync("_Availability", variant)
+                                                            </span>
+                                                        </td>
+                                                        <td class="product-overview-collapsible-table-cell">
+                                                            <span class="productExtra--size">
+                                                                @{
+                                                                    var dataDictAddToCart = new ViewDataDictionary(ViewData);
+                                                                    dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{variant.Id}";
+                                                                    @await Html.PartialAsync("_AddToCart", variant.AddToCart, dataDictAddToCart)
+                                                                }
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <div class="attributes-wrapper">
+
+                                                <!--gift card-->
+                                                @{
+                                                    var dataDictGiftCard = new ViewDataDictionary(ViewData);
+                                                    dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = $"giftcard_{variant.Id}";
+                                                    @await Html.PartialAsync("_GiftCardInfo", variant.GiftCard, dataDictGiftCard)
+                                                }
+                                                <!--rental info-->
+                                                @{
+                                                    var dataDictRental = new ViewDataDictionary(ViewData);
+                                                    dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{variant.Id}";
+                                                    @await Html.PartialAsync("_RentalInfo", variant, dataDictRental)
+                                                }
+                                                <!--price breaks-->
+                                                @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
+                                            </div>
+                                            <div class="product-variant-box">
+                                                <div class="variant-buttons-wrapper">
+
+
+                                                </div>
+                                                <!--sample download-->
+                                                @await Html.PartialAsync("_DownloadSample", variant)
+                                                <!--delivery-->
+                                                @await Html.PartialAsync("_DeliveryInfo", variant)
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+                        </div>
+                        @if (Model.AssociatedProducts.Count == 0)
+                        {
+                            <div class="no-associated-products">
+                                @T("Products.NoAssociatedProducts")
+                            </div>
+                        }
+                    </div>
+
+                    @if (shouldShowSpecifications)
+                    {
+                        @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications)
+                    }
+
+                    @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+                </div>
+                @*we do not display "also purchased" for grouped products
+                    @await Component.InvokeAsync("ProductsAlsoPurchased", new { productId = Model.Id })*@
+                @{
+                    var relatedProducts = await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_related_carosuel" });
+
+                    if (String.IsNullOrEmpty(relatedProducts.ToHtmlString()))
+                    {
+                        <!-- related products grid -->
+                        @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
+                    }
+                }
+                <div class="carousel-wrapper">
+                    @if (!String.IsNullOrEmpty(relatedProducts.ToHtmlString()))
+                    {
+                        @relatedProducts
+                    }
+                </div>
+            </div>
+        </form>
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsBottom, additionalData = Model })
+    </div>
+</div>
