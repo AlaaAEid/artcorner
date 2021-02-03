@@ -3684,6 +3684,129 @@ input + .inputs-icons {
 	transition: color .2s ease;
 }
 
+
+/* ALAA EID*/
+
+.product-variant-box {
+	float: right;
+}
+
+label.variant-box-name {
+	margin: 0 0 10px;
+	font-size: 11px;
+	color: #444444;
+	font-weight: bold;
+}
+
+.variant-overview-picture {
+	width: 100%;
+	float: left;
+	height: 100%;
+	padding-right: 7px;
+}
+
+.variant-collapsible-picture {
+	position: relative;
+	width: 100%;
+	max-width: 330px;
+	max-height: 60px;
+	margin: 0 auto 15px;
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+	.variant-collapsible-picture img {
+		max-width: 100%;
+	}
+
+.product-variant-collapsible-line {
+	margin: 0 0 15px;
+	border: 1px solid #eeeeee;
+	border-radius: 3px;
+	padding: 0;
+	float: left;
+	width: 100%;
+	display: inline-block;
+	position: relative;
+}
+
+	.product-variant-collapsible-line:after {
+		content: "";
+		display: block;
+		clear: both;
+	}
+
+	.product-variant-collapsible-line .attributes-wrapper {
+		border: none;
+		float: left;
+		clear: left;
+	}
+
+.variant-overview .variant-collapsible-name {
+	margin: 0 0 10px;
+	font-size: 22px;
+	color: #444444;
+	float: left;
+	font-weight: bold;
+	text-align: left;
+	width: 100%;
+}
+
+.variant-overview .variant-collapsible-description {
+	margin: 0 0 15px;
+	line-height: 1.5;
+	font-size: 15px;
+	float: left;
+	color: #8c8c8c;
+}
+
+.variant-overview .additional-collapsible-details {
+	margin-bottom: 30px;
+	text-align: left;
+}
+
+	.variant-overview .additional-collapsible-details div {
+		margin: 0 0 5px;
+		font-size: 15px;
+		color: #8c8c8c;
+	}
+
+		.variant-overview .additional-collapsible-details div .value {
+			color: #444444;
+		}
+
+.variant-overview-collapsible-picture {
+	width: 19%;
+}
+
+.variant-collapsible-info {
+	display: inline-block;
+	float: left;
+	width: 80%;
+}
+
+.product-overview-collapsible-table .product-overview-collapsible-table-row.product-overview-collapsible-table-header {
+	background: #000000;
+	font-weight: 700;
+	color: white;
+}
+
+	.product-overview-collapsible-table .product-overview-collapsible-table-row.product-overview-collapsible-table-header th.product-overview-collapsible-table-cell {
+		width: 15%;
+	}
+
+.product-overview-collapsible-table .product-overview-collapsible-table-row {
+	text-align: left;
+	vertical-align: text-top;
+}
+
+.variant-overview .prices span {
+	font-size: 18px;
+}
+
+
+/* END EXTRA */
+
 .overview .compare-products {
 	margin-bottom: 40px;
 }
