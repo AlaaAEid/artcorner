@@ -3713,6 +3713,8 @@ label.variant-box-name {
 	margin: 0 auto 15px;
 	border-radius: 3px;
 	overflow: hidden;
+	border-bottom: 1px solid black;
+	border-radius: 0;
 }
 
 	.variant-collapsible-picture img {
@@ -4342,6 +4344,16 @@ td.add-to-cart label,
 	opacity: 0;
 	margin-top: -25px;
 }
+
+.custom-attribute-squares input[type="radio"] {
+	position: absolute;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+	opacity: 0;
+}
+
 .attribute-squares span {
 	display: block;
 	user-select: none;
@@ -4617,6 +4629,8 @@ td.add-to-cart label,
 	vertical-align: top;
 	font-size: 0;
 	margin-left: 5px;
+	position: absolute;
+	left: 0;
 }
 
 .overview .min-qty-notification,

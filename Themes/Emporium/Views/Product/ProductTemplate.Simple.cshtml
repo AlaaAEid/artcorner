@@ -8,10 +8,11 @@
 @inject SeoSettings seoSettings
 @inject ISettingService settingService
 @inject IStoreContext  storeContext
+@inject IViewComponentSelector viewComponentSelector
 
 @{
     Layout = "_ColumnsOne";
-
+    
     //title
     Html.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     //meta
@@ -58,7 +59,7 @@
     <div class="page-body">
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
-	    @if (seoSettings.MicrodataEnabled)
+            @if (seoSettings.MicrodataEnabled)
             {
                 @await Html.PartialAsync("_Microdata", Model)
             }
@@ -66,7 +67,7 @@
                 <div class="product-essential">
                     <div class="mobile-name-holder"></div>
                     <div class="mobile-prev-next-holder"></div>
-					@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialTop, additionalData = Model })
+                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialTop, additionalData = Model })
                     @{
                         var cloudZoom = await Component.InvokeAsync("Widget", new { widgetZone = "sevenspikes_cloud_zoom", additionalData = Model });
                     }
@@ -102,11 +103,11 @@
                         </div>
                         <!--short description-->
                         @if (!string.IsNullOrEmpty(Model.ShortDescription))
-    {
-                    <div class="short-description">
-                        @Html.Raw(Model.ShortDescription)
-                    </div>
-}
+                        {
+                            <div class="short-description">
+                                @Html.Raw(Model.ShortDescription)
+                            </div>
+                        }
                         <!--SKU, MAN, GTIN, vendor-->
                         @await Html.PartialAsync("_SKU_Man_GTIN_Ven", Model)
                         <div class="attributes-wrapper">
@@ -126,7 +127,7 @@
                             @{
                                 var dataDictRental = new ViewDataDictionary(ViewData);
                                 dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{Model.Id}";
-                                 @await Html.PartialAsync("_RentalInfo", Model, dataDictRental)
+                                @await Html.PartialAsync("_RentalInfo", Model, dataDictRental)
                             }
 
                             @await Html.PartialAsync("_ProductTierPrices", Model.TierPrices)
@@ -168,6 +169,8 @@
                         </div>
                     </div>
                     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
+                    @await Html.PartialAsync("_CustomProductAttributes", Model.ProductAttributes, dataDictAttributes)
+
                 </div>
 
                 @{
@@ -197,21 +200,21 @@
                     </div>
                 }
 
-                @if (shouldShowSpecifications)
-                {
-                    <div class="product-collateral">
-                        @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications)
-                    </div>
-                }
+               
+                <div class="product-collateral">
+                    @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications)
+                </div>
+                
+
                 @await Html.PartialAsync("_ProductTags", Model.ProductTags)
                 @{
                     var relatedProducts = await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_related_carosuel" });
                     var alsoPurchased = await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_purchased_carosuel" });
-                
+
                     if (String.IsNullOrEmpty(relatedProducts.ToHtmlString()))
                     {
                         <!-- related products grid -->
-                        @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })    
+                        @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
                     }
                     if (String.IsNullOrEmpty(alsoPurchased.ToHtmlString()))
                     {
