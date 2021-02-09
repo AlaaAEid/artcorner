@@ -148,43 +148,43 @@
                         <!--product pictures-->
                         @await Html.PartialAsync("_ProductDetailsPictures", Model)
                     }
-                    <div class="overview">
-                        <div class="prev-next-holder">
-                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
-                        </div>
-                        <!--product breadcrumb-->
-                        @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
-                        @await Html.PartialAsync("_Discontinued", Model)
-                        <div class="product-name">
-                            <h1 itemprop="name">
-                                @Model.Name
-                            </h1>
-                            <!--manufacturers-->
-                            @await Html.PartialAsync("_ProductManufacturers", Model.ProductManufacturers)
-                        </div>
-                        <div class="reviews-and-compare">
-                            <!--product reviews-->
-                            @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
-                            <!--compare button-->
-                            @await Html.PartialAsync("_CompareProductsButton", Model)
-                        </div>
-                        <!--compare, email a friend-->
-                        @*<div class="overview-buttons">
-                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore, additionalData = Model })
-
-                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsAfter, additionalData = Model })
-                            </div>*@
-
-                        @if (showShareButton)
-                        {
-                            @await Html.PartialAsync("_ShareButton", Model)
-                        }
-                        <div class="grouped-product-box">
-                            <label>@T("SevenSpikes.Themes.Emporium.Common.GroupedText")</label>
-                            <a href="#product-list-start" class="grouped-btn"><span>0</span>@T("SevenSpikes.Themes.Emporium.Common.TypesAvailable")</a>
-                        </div>
-                        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewBottom, additionalData = Model })
+                <div class="overview">
+                    <div class="prev-next-holder">
+                        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                     </div>
+                    <!--product breadcrumb-->
+                    @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
+                    @await Html.PartialAsync("_Discontinued", Model)
+                    <div class="product-name">
+                        <h1 itemprop="name">
+                            @Model.Name
+                        </h1>
+                        <!--manufacturers-->
+                        @await Html.PartialAsync("_ProductManufacturers", Model.ProductManufacturers)
+                    </div>
+                    <div class="reviews-and-compare">
+                        <!--product reviews-->
+                        @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
+                        <!--compare button-->
+                        @await Html.PartialAsync("_CompareProductsButton", Model)
+                    </div>
+                    <!--compare, email a friend-->
+                    @*<div class="overview-buttons">
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore, additionalData = Model })
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsAfter, additionalData = Model })
+        </div>*@
+                    <div class="grouped-product-box">
+                        <label>@T("SevenSpikes.Themes.Emporium.Common.GroupedText")</label>
+                        <a href="#product-list-start" class="grouped-btn"><span>0</span>@T("SevenSpikes.Themes.Emporium.Common.TypesAvailable")</a>
+                    </div>
+                    @if (showShareButton)
+                    {
+                        @await Html.PartialAsync("_ShareButton", Model)
+                    }
+
+                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewBottom, additionalData = Model })
+                </div>
                     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
                 </div>
 
@@ -287,8 +287,8 @@
                                                         <th scope="col" style="width: 30%;" class="product-overview-collapsible-table-cell">@T("admin.custom.groupedproduct.table.size")</th>
                                                         <th scope="col" class="product-overview-collapsible-table-cell product-overview-collapsible-table-cell-mobile">@T("admin.custom.groupedproduct.table.SKU") </th>
                                                         <th scope="col" class="product-overview-collapsible-table-cell">@T("admin.custom.groupedproduct.table.price") </th>
-                                                        <th scope="col" style="width: 20%;" class="product-overview-collapsible-table-cell">@T("admin.custom.groupedproduct.table.stock")  </th>
-                                                        <th scope="col" style="width: 20%;" class="product-overview-collapsible-table-cell"></th>
+                                                        <th scope="col" class="product-overview-collapsible-table-cell product-overview-collapsible-table-cell-mobile">@T("admin.custom.groupedproduct.table.stock")  </th>
+                                                        <th scope="col" style="width: 30%;" class="product-overview-collapsible-table-cell"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -319,7 +319,7 @@
                                                                 }
                                                             </span>
                                                         </td>
-                                                        <td class="product-overview-collapsible-table-cell">
+                                                        <td class="product-overview-collapsible-table-cell product-overview-collapsible-table-cell-mobile">
                                                             <span class="productExtra--size">
                                                                 <!--availability-->
                                                                 @await Html.PartialAsync("_Availability", variant)

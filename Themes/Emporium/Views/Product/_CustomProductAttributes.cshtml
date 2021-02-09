@@ -17,9 +17,8 @@
             <dd id="@($"{NopCatalogDefaults.ProductAttributePrefix}input_{attribute.Id}")">
                 @switch (attribute.AttributeControlType)
                 {
-                   
 
-                    case AttributeControlType.ColorDescriptionSquares:
+                    case AttributeControlType.ColorSquares:
                         {
                             Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/bootstrap-4.4.1/js/bootstrap.js");
 
@@ -38,13 +37,13 @@
 
                                         <div class="product-variant-box col-lg-2 col-md-3 col-sm-4 col-6" style="padding-right:5px">
                                             <div class="card card-body p-0">
-                                                    <div title="@attributeName" class="variant-collapsible-picture" style="min-height:70px;background-color:@(attributeValue.ColorSquaresRgb);"></div>
-                                                    <label class="variant-box-name" for="@(controlId)_@(attributeValue.Id)">
-                                                        @attributeName
-                                                    </label>
+                                                <div title="@attributeName" class="variant-collapsible-picture" style="min-height:70px;background-color:@(attributeValue.ColorSquaresRgb);"></div>
+                                                <label class="variant-box-name" for="@(controlId)_@(attributeValue.Id)">
+                                                    @attributeName
+                                                </label>
 
-                                                    <input id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"
-                                                           @(attribute.Values.Any(value => value.CustomerEntersQty) ? Html.Raw($"onclick=\"showHideRadioQuantity('{controlId}')\"") : null) />
+                                                <input id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"
+                                                       @(attribute.Values.Any(value => value.CustomerEntersQty) ? Html.Raw($"onclick=\"showHideRadioQuantity('{controlId}')\"") : null) />
                                             </div>
                                         </div>
                                     }
@@ -56,16 +55,68 @@
                                             <input type="text" name="@(controlId)_@(attributeValue.Id)_qty" id="@(controlId)_@(attributeValue.Id)_qty" value="@(attributeValue.Quantity)" />
                                         </div>
                                     }
-                                <script asp-location="Footer">
+                                    <script asp-location="Footer">
                                     $(document).ready(function() {
                                         $('.product-collateral #color-desc-squares-@(attribute.Id)').on('click', 'input', function (event) {
-                                           
+
                                             $('.attributes #color-desc-squares-@(attribute.Id)').find('div').removeClass('selected-value');
                                              $(this).closest('div').addClass('selected-value');
                                         });
                                         showHideRadioQuantity("@controlId");
                                     });
-                                </script>
+                                    </script>
+                                </div>
+                            </div>
+                        }
+                        break;
+
+                    case AttributeControlType.ImageSquares:
+                        {
+                            Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/bootstrap-4.4.1/js/bootstrap.js");
+
+                            Html.AppendCssFileParts("~/lib/bootstrap-4.4.1/css/bootstrap.css");
+
+
+                            <div id="product-list-start" class="product-variant-list container-fluid py-4">
+                                <div class="product-variant-collapsible-line row no-gutters custom-attribute-squares" id="color-desc-squares-@(attribute.Id)">
+                                    @foreach (var attributeValue in attribute.Values)
+                                    {
+
+                                        var attributeName = string.IsNullOrEmpty(attributeValue.PriceAdjustment) ?
+                                        attributeValue.Name :
+                                        T("Products.ProductAttributes.PriceAdjustment", attributeValue.Name, attributeValue.PriceAdjustment, string.Empty).Text;
+
+
+                                        <div class="product-variant-box col-lg-2 col-md-3 col-sm-4 col-6" style="padding-right:5px">
+                                            <div class="card card-body p-0">
+                                                <div title="@attributeName" class="variant-collapsible-picture" style="min-height:70px;background: url('@(attributeValue.ImageSquaresPictureModel.ImageUrl)') 50% 50% no-repeat;"></div>
+                                                <label class="variant-box-name" for="@(controlId)_@(attributeValue.Id)">
+                                                    @attributeName
+                                                </label>
+
+                                                <input id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@attributeValue.IsPreSelected"
+                                                       @(attribute.Values.Any(value => value.CustomerEntersQty) ? Html.Raw($"onclick=\"showHideRadioQuantity('{controlId}')\"") : null) />
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @foreach (var attributeValue in attribute.Values.Where(value => value.CustomerEntersQty))
+                                    {
+                                        <div class="qty-box" id="@(controlId)_@(attributeValue.Id)_qty_box" style="display:none">
+                                            <label for="@(controlId)_@(attributeValue.Id)_qty">@(T("Products.ProductAttributes.PriceAdjustment.Quantity").Text)</label>
+                                            <input type="text" name="@(controlId)_@(attributeValue.Id)_qty" id="@(controlId)_@(attributeValue.Id)_qty" value="@(attributeValue.Quantity)" />
+                                        </div>
+                                    }
+                                    <script asp-location="Footer">
+                                    $(document).ready(function() {
+                                        $('.product-collateral #color-desc-squares-@(attribute.Id)').on('click', 'input', function (event) {
+
+                                            $('.attributes #color-desc-squares-@(attribute.Id)').find('div').removeClass('selected-value');
+                                             $(this).closest('div').addClass('selected-value');
+                                        });
+                                        showHideRadioQuantity("@controlId");
+                                    });
+                                    </script>
                                 </div>
                             </div>
                         }
@@ -118,7 +169,6 @@
                     break;
                 case AttributeControlType.RadioList:
                 case AttributeControlType.ColorSquares:
-                case AttributeControlType.ColorDescriptionSquares:
                 case AttributeControlType.ImageSquares:
                     {
                         foreach (var attributeValue in attribute.Values)

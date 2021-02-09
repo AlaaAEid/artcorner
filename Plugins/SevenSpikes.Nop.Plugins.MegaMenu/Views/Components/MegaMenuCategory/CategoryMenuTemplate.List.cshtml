@@ -11,8 +11,10 @@
 
     @if (areCategoriesInASingleItem)
     {
+        
         <span class="@withSubcategoriesClass single-item-categories labelfornextplusbutton">@Model.Item.Title</span>
     }
+
     else
     {
         <a class="@withSubcategoriesClass" href="@Model.Item.Url"><span>@Model.Item.Title</span></a>
@@ -21,7 +23,7 @@
     @if (hasSubCategories)
     {
         <div class="plus-button"></div>
-        <div class="sublist-wrap">
+        <div class="sublist-wrap"> 
             <ul class="sublist">
                 <li class="back-button">
                     <span>@T("SevenSpikes.MegaMenu.ResponsiveBackButton")</span>

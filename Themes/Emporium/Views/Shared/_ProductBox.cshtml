@@ -5,11 +5,14 @@
 @using Nop.Core.Domain.Orders
 @using Nop.Core.Domain.Tax
 @using Nop.Services.Configuration
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Catalog;
 
 @inject IStoreContext storeContext
 @inject IWorkContext workContext
 @inject ISettingService settingService
 @inject CatalogSettings catalogSettings
+@inject IProductAttributeService productAttributeService
 @inject IViewComponentSelector viewComponentSelector
 
 @{
@@ -37,13 +40,13 @@
         <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
             @if (viewComponentSelector.SelectComponent("LazyLoadImage") != null)
             {
-                @await Component.InvokeAsync("LazyLoadImage", new(string Key, string Value)[] 
-                {
+                @await Component.InvokeAsync("LazyLoadImage", new (string Key, string Value)[]
+  {
                     ("src", Model.DefaultPictureModel.ImageUrl),
                     ("alt", Model.DefaultPictureModel.AlternateText),
                     ("title", Model.DefaultPictureModel.Title),
                     ("class", "picture-img")
-                })
+  })
             }
             else
             {
@@ -64,7 +67,7 @@
     </div>
     <div class="details">
         <h2 class="product-title">
-            <a href="@Url.RouteUrl("Product", new {SeName = Model.SeName})">@Model.Name</a>
+            <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.Name</a>
         </h2>
         @if (catalogSettings.ShowSkuOnCatalogPages && !string.IsNullOrEmpty(Model.Sku))
         {
@@ -96,7 +99,76 @@
                 {
                     <span class="price old-price">@Model.ProductPrice.OldPrice</span>
                 }
-                <span class="price actual-price">@Model.ProductPrice.Price</span>
+            <span class="price actual-price">
+                @{
+                    string priceString = Model.ProductPrice.Price;
+                    decimal minPrice = 0;
+                    var price_formatter = EngineContext.Current.Resolve<IPriceFormatter>();
+                    var product_service = EngineContext.Current.Resolve<IProductService>();
+                    var products = product_service.GetAssociatedProducts(Model.Id);
+                    var r = new System.Text.RegularExpressions.Regex("[a-zA-Zء-ي] (.){0,4}0\\.00(.){0,4}");
+                    if (r.IsMatch(priceString))
+                    {
+                        foreach (var product in products)
+                        {
+
+                            decimal calulatedPrice = 0;
+                            var prdAttMappings = productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
+                            if (prdAttMappings.Count > 0)
+                            {
+                                foreach (var attribute in prdAttMappings)
+                                {
+                                    if (attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes)
+                                    {
+                                        var attributeValues = productAttributeService.GetProductAttributeValues(attribute.Id);
+                                        foreach (var attributeValue in attributeValues)
+                                        {
+                                            if (attributeValue.AssociatedProductId != 0)
+                                            {
+                                                var associatedProduct = product_service.GetProductById(@attributeValue.AssociatedProductId);
+                                                calulatedPrice += associatedProduct.Price * attributeValue.Quantity;
+                                            }
+                                            else
+                                            {
+                                                calulatedPrice += attributeValue.PriceAdjustment;
+                                            }
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        decimal minDropPrice = 0;
+                                        var attributeCombinations = productAttributeService.GetAllProductAttributeCombinations(attribute.ProductId);
+
+                                        foreach (var attributeValue in attributeCombinations)
+                                        {
+                                            if (attributeValue.Sku != null)
+                                            {
+                                                if (attributeValue.OverriddenPrice < minDropPrice || minDropPrice == 0)
+                                                {
+                                                    minDropPrice = attributeValue.OverriddenPrice.GetValueOrDefault();
+                                                }
+                                            }
+                                        }
+                                        calulatedPrice += minDropPrice;
+                                    }
+
+                                }
+                            }
+                            if (calulatedPrice < minPrice || minPrice == 0)
+                            {
+                                minPrice = calulatedPrice;
+                            }
+                            if (minPrice != 0)
+                            {
+                                var formattedPrice = price_formatter.FormatPrice(minPrice).ToString();
+                                priceString = "From " + formattedPrice;
+                            }
+                        }
+                    }
+                }
+                @priceString
+            </span>
                 @if (Model.ProductPrice.DisplayTaxShippingInfo)
                 {
                     var inclTax = workContext.TaxDisplayType == TaxDisplayType.IncludingTax;

@@ -4692,7 +4692,7 @@ td.add-to-cart label,
 .overview .qty-input,
 .variant-overview .qty-input {
 	padding-right: 27px;
-	width: 80px;
+	width: 	 56px;
 }
 
 .variant-buttons-wrapper {
@@ -4759,8 +4759,8 @@ td.add-to-cart label,
 }
 
 .variant-overview .add-to-cart-button {
-	padding: 0 14px;
-	width: 140px;
+	padding: 12px;
+
 }
 
 .overview .add-to-wishlist {
